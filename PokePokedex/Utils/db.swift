@@ -7,9 +7,12 @@
 
 import Foundation
 
-
-var arrayPokesFavoritesDB = [Pokemon]() //= []
-
-func getDB() -> [Pokemon] {
-    return arrayPokesFavoritesDB
+class Favorites: ObservableObject {
+    static let instance = Favorites()
+    @Published
+    var arrayPokesFavoritesDB = [Pokemon]() //= []
 }
+
+//func getDB() -> [Pokemon] {
+//    return arrayPokesFavoritesDB
+//}

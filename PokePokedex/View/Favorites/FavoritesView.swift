@@ -10,6 +10,9 @@ import Kingfisher
 
 struct FavoritesView: View {
     
+    @ObservedObject
+    var favorites = Favorites.instance
+    
     var body: some View {
         ZStack {
             Rectangle().foregroundColor(.white)
@@ -18,17 +21,17 @@ struct FavoritesView: View {
                     Text("Favorites").font(.largeTitle).fontWeight(.heavy)
                         .padding()
                 }
-                List(arrayPokesFavoritesDB.indices, id: \.self) { poke in
+                List(favorites.arrayPokesFavoritesDB.indices, id: \.self) { poke in
                     ZStack {
                         RoundedRectangle(cornerRadius: 20)
-                            .foregroundColor(arrayPokesFavoritesDB[poke].typeColor)
+                            .foregroundColor(favorites.arrayPokesFavoritesDB[poke].typeColor)
                         HStack {
                             Spacer()
-                            Text(arrayPokesFavoritesDB[poke].name.capitalized)
+                            Text(favorites.arrayPokesFavoritesDB[poke].name.capitalized)
                                 .font(.title)
                                 .foregroundColor(.white)
                             Spacer()
-                            KFImage(URL(string: arrayPokesFavoritesDB[poke].imageUrl))
+                            KFImage(URL(string: favorites.arrayPokesFavoritesDB[poke].imageUrl))
                                 .resizable()
                                 .frame(width: 100, height: 100)
                             Spacer()
@@ -38,7 +41,7 @@ struct FavoritesView: View {
                 .foregroundColor(.white)
             }
             .onAppear {
-                print(arrayPokesFavoritesDB)
+                print(favorites.arrayPokesFavoritesDB)
             }
         }
         

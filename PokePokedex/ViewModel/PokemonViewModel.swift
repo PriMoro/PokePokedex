@@ -31,8 +31,15 @@ class PokemonViewModel: ObservableObject {
         guard let url = URL(string: "https://pokedex-bb36f.firebaseio.com/pokemon.json") else { return }
 
         URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data?.removeNullFrom(string: "null,") else { return }
-            guard let pokemon = try? JSONDecoder().decode([Pokemon].self, from: data) else { return }
+            guard let data = data else { return }
+            let pokemon: [Pokemon]
+            do {
+                // Converts [Pokemon?] -> [Pokemon]
+                pokemon = (try JSONDecoder().decode([Pokemon?].self, from: data)).compactMap { $0 }
+            } catch {
+                pokemon = []
+                print(error.localizedDescription)
+            }
             //print("pokemons here: \(pokemon)")
             DispatchQueue.main.async {
                 self.pokemon = pokemon
@@ -43,12 +50,12 @@ class PokemonViewModel: ObservableObject {
     func savePoke(pokemon: Binding<Pokemon>) {
         pokemon.wrappedValue.isFavorite.toggle()
         print("change to: \(pokemon.wrappedValue.isFavorite)")
-        arrayPokesFavoritesDB.append(pokemon.wrappedValue)
+        Favorites.instance.arrayPokesFavoritesDB.append(pokemon.wrappedValue)
         //print(pokemon)
     }
     
     func pokemonIsFavorite(pokemon: Pokemon) -> Bool {
-        return arrayPokesFavoritesDB.filter({ $0.name.lowercased() == pokemon.name.lowercased() }).first != nil ? true : false
+        return Favorites.instance.arrayPokesFavoritesDB.filter({ $0.name.lowercased() == pokemon.name.lowercased() }).first != nil ? true : false
    }
     
 }
