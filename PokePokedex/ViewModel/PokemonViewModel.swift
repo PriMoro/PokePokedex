@@ -7,14 +7,12 @@
 
 import Foundation
 import SwiftUI
+import CoreData
 
 class PokemonViewModel: ObservableObject {
     
+    @Environment(\.managedObjectContext) private var viewContext
     @Published var pokemon = [Pokemon]()
-    @Published var filteredPokemon = [Pokemon]()
-    @Published var pokemonList = [Demo]()
-    
-    @Published var arrayPokesFav: [Pokemon] = []
     
     let MOCK_POKEMON = Pokemon(
         id: 1,
@@ -29,26 +27,15 @@ class PokemonViewModel: ObservableObject {
     
     func getPokemon() {
         guard let url = URL(string: "https://pokedex-bb36f.firebaseio.com/pokemon.json") else { return }
-
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data?.removeNullFrom(string: "null,") else { return }
             guard let pokemon = try? JSONDecoder().decode([Pokemon].self, from: data) else { return }
-            //print("pokemons here: \(pokemon)")
+            print(pokemon)
             DispatchQueue.main.async {
                 self.pokemon = pokemon
             }
         }.resume()
     }
     
-    func savePoke(pokemon: Binding<Pokemon>) {
-        pokemon.wrappedValue.isFavorite.toggle()
-        print("change to: \(pokemon.wrappedValue.isFavorite)")
-        arrayPokesFavoritesDB.append(pokemon.wrappedValue)
-        //print(pokemon)
-    }
-    
-    func pokemonIsFavorite(pokemon: Pokemon) -> Bool {
-        return arrayPokesFavoritesDB.filter({ $0.name.lowercased() == pokemon.name.lowercased() }).first != nil ? true : false
-   }
-    
+
 }

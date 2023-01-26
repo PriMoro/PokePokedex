@@ -20,7 +20,6 @@ struct Results: Decodable {
 }
 
 struct Demo: Decodable, Hashable {
-    //let id: Int
     let name: String
     let typeofpokemon: [String]
 }

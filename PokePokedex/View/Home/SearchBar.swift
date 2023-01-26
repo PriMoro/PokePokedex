@@ -16,6 +16,8 @@ struct SearchBar: View {
     
     var grid = [GridItem(.flexible()), GridItem(.flexible())]
     
+    @Environment(\.managedObjectContext) private var viewContext
+    
     var filteredPokemon: [Pokemon] {
         if searchText == "" { return viewModel.pokemon }
         return viewModel.pokemon.filter {
@@ -38,9 +40,7 @@ struct SearchBar: View {
                                         VStack {
                                             HStack {
                                                 Text(poke.name.capitalized).font(.title).foregroundColor(.white)
-                                                if viewModel.pokemonIsFavorite(pokemon: poke) {
-                                                    Image(systemName: "star.fill").foregroundColor(.yellow)
-                                                }
+                                                StarView(name: poke.name.lowercased(), viewContext: viewContext)
                                             }
                                             HStack {
                                                 ZStack {
@@ -70,8 +70,6 @@ struct SearchBar: View {
             .navigationTitle("Search Pokemons")
         }
         .searchable(text: $searchText, prompt: "Search Pokemons by name or by type")
-        //.searchable(text: searchBarOnlyLetters(testString: searchText) ? $searchText : .constant(""))
-        //.keyboardType(.default)
         .onAppear {
             viewModel.getPokemon()
             
@@ -79,24 +77,7 @@ struct SearchBar: View {
     }
     
     func searchBarOnlyLetters(testString: String) -> Bool {
-        
-        //let input = testString
-        //if input.wholeMatch(of: /[a-z A-Z ]+/) != nil {
-        //  searchText = testString  // abd 456 def
-        //print(match.1)  // 456
-        //}
-        //else {
-        //    searchText = ""
-        //}
-        
         return true
-        
-        /*let range = NSRange(location: 0, length: testString.utf16.count)
-         let regex = try! NSRegularExpression(pattern: "[a-z A-Z ]+")
-         
-         return regex.firstMatch(in: testString, options: [], range: range) != nil*/
-        
-        //if searchText.contains(<#T##regex: RegexComponent##RegexComponent#>)
     }
     
 }

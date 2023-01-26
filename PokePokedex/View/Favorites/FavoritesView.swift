@@ -9,41 +9,57 @@ import SwiftUI
 import Kingfisher
 
 struct FavoritesView: View {
+
+    @ObservedObject var viewmodel = PokemonViewModel()
+    
+    @Environment(\.managedObjectContext) private var viewContext
+
+    @FetchRequest(entity: PokemonDB.entity(),
+                  sortDescriptors: [NSSortDescriptor(key: "name", ascending: true)])
+    
+    private var pokemonsfavs: FetchedResults<PokemonDB>
     
     var body: some View {
-        ZStack {
-            Rectangle().foregroundColor(.white)
-            VStack(alignment: .leading) {
-                VStack {
-                    Text("Favorites").font(.largeTitle).fontWeight(.heavy)
-                        .padding()
-                }
-                List(arrayPokesFavoritesDB.indices, id: \.self) { poke in
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20)
-                            .foregroundColor(arrayPokesFavoritesDB[poke].typeColor)
-                        HStack {
-                            Spacer()
-                            Text(arrayPokesFavoritesDB[poke].name.capitalized)
-                                .font(.title)
-                                .foregroundColor(.white)
-                            Spacer()
-                            KFImage(URL(string: arrayPokesFavoritesDB[poke].imageUrl))
-                                .resizable()
-                                .frame(width: 100, height: 100)
-                            Spacer()
+        NavigationView {
+            VStack {
+                List {
+                    ForEach(pokemonsfavs) { poke in
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 20)
+                                    .foregroundColor(chooseColor(type: poke.type))
+                                HStack {
+                                    Spacer()
+                                    Text(poke.name?.capitalized ?? "Not found")
+                                        .font(.title)
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                    KFImage(URL(string: poke.imageUrl ?? "Not found"))
+                                        .resizable()
+                                        .frame(width: 100, height: 100)
+                                    Spacer()
+                                }
+                            }.padding()
                         }
-                    }.padding()
+                    .onDelete(perform: deletePokemon)
                 }
-                .foregroundColor(.white)
             }
-            .onAppear {
-                print(arrayPokesFavoritesDB)
-            }
+                .navigationTitle("Favorites")
         }
-        
     }
-    
+    func deletePokemon(offsets: IndexSet) {
+        withAnimation {
+            offsets.map { pokemonsfavs[$0] }.forEach(viewContext.delete)
+            saveContext()
+        }
+    }
+    func saveContext() {
+        do {
+            try viewContext.save()
+        } catch {
+            let error = error as NSError
+            fatalError("An error occured: \(error)")
+        }
+    }
 }
 
 struct Favorites_Previews: PreviewProvider {

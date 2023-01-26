@@ -27,6 +27,45 @@ class Colors {
     let fire = Color(red: 255 / 255, green: 164 / 255, blue: 101 / 255)
 }
 
+func chooseColor(type: String?) -> Color {
+    switch type {
+    case "dragon":
+        return Color(.systemRed)
+    case "fire":
+        return Color(.systemOrange)
+    case "poison":
+        return Color(.systemGreen)
+    case "water":
+        return Color(.systemTeal)
+    case "electric":
+        return Color(.systemYellow)
+    case "psychic":
+        return Color(.systemBlue).opacity(0.5)
+    case "normal":
+        return Color(.systemBlue)
+    case "ground":
+        return Color(.systemBrown).opacity(0.5)
+    case "flying":
+        return Color(.systemOrange).opacity(0.5)
+    case "fairy":
+        return Color(.systemPurple)
+    case "grass":
+        return Color(.systemMint)
+    case "fighting":
+        return Color(.magenta)
+    case "steel":
+        return Color(.systemGray3)
+    case "ice":
+        return Color(.systemTeal).opacity(0.5)
+    case "rock":
+        return Color(.systemGray)
+    case "bug":
+        return Color(.systemBrown)
+    default:
+        return Color(.black)
+    }
+}
+
 extension Pokemon {
     var typeColor: Color {
         switch type {
@@ -62,11 +101,11 @@ extension Pokemon {
             return Color(.systemGray)
         case "bug":
             return Color(.systemBrown)
-            default:
-                return Color(.black)
-            }
+        default:
+            return Color(.black)
         }
-       
+    }
+    
     var backgroundColor: UIColor {
         switch type {
         case "bug", "ground": return .systemBrown
