@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import CoreData
 
 struct PokemonDetailView: View {
     
@@ -17,17 +18,16 @@ struct PokemonDetailView: View {
     
     @State var pokemon: Pokemon
     
-    
-    
-    var pokemonIndex: Int {
-        viewmodel.pokemon.firstIndex(where:  { $0.id == pokemon.id } )!
-    }
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(entity: PokemonDB.entity(),
+                  sortDescriptors: [])
+    private var pokemons: FetchedResults<PokemonDB>
+    @State var matches: [PokemonDB]?
     
     var body: some View {
         ZStack {
             LinearGradient(gradient: Gradient(colors: [Color(pokemon.backgroundColor), Color.white]), startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
-            
             VStack {
                 VStack {
                     HStack {
@@ -46,15 +46,7 @@ struct PokemonDetailView: View {
                                 .cornerRadius(20)
                         }
                         VStack(spacing: 10) {
-                            Button(action: {
-                                //print("before: \(pokemon.isFavorite)")
-                                viewmodel.savePoke(pokemon: $pokemon)
-                                //print("after = \(pokemon.isFavorite)")
-                            }) {
-                                Image(systemName: pokemon.isFavorite ? "star.fill" : "star")
-                                    .labelStyle(.iconOnly)
-                                    .foregroundColor(pokemon.isFavorite ? .yellow : .gray)
-                            }
+                            PokemonDetailStarView(isSet: checkPokeIsSaved(name: pokemon.name, type: pokemon.type, imageUrl: pokemon.imageUrl), pokemon: pokemon)
                             Text("# \(pokemon.id)")
                         }
                         .offset(x: 110, y: 15)
@@ -134,7 +126,39 @@ struct PokemonDetailView: View {
             }
         }.navigationBarTitleDisplayMode(.inline)
     }
-    
+    func checkPokeIsSaved(name: String, type: String, imageUrl: String) -> Bool {
+        let fetchRequest: NSFetchRequest<PokemonDB> = PokemonDB.fetchRequest()
+        fetchRequest.entity = PokemonDB.entity()
+        fetchRequest.predicate = NSPredicate(
+            format: "name CONTAINS %@", name.lowercased()
+            )
+        matches = try? viewContext.fetch(fetchRequest)
+
+        if matches == [] {
+            addPokemon(name: name, type: type, imageUrl: imageUrl)
+            return true
+        } else {
+            return false
+        }
+    }
+
+    func addPokemon(name: String, type: String, imageUrl: String) {
+        withAnimation {
+            let pokemonfav = PokemonDB(context: viewContext)
+            pokemonfav.name = name
+            pokemonfav.type = type
+            pokemonfav.imageUrl = imageUrl
+            saveContext()
+        }
+    }
+    func saveContext() {
+        do {
+            try viewContext.save()
+        } catch {
+            let error = error as NSError
+            fatalError("An error occured: \(error)")
+        }
+    }
 }
 
 

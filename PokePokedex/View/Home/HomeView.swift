@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import CoreData
 
 struct HomeView: View {
     
@@ -16,12 +17,7 @@ struct HomeView: View {
     
     var grid = [GridItem(.flexible()), GridItem(.flexible())]
     
-    var filteredPokemon: [Pokemon] {
-        if searchText == "" { return viewModel.pokemon }
-        return viewModel.pokemon.filter {
-            $0.name.lowercased().contains(searchText.lowercased()) || $0.type.lowercased().contains(searchText.lowercased())
-        }
-    }
+    @Environment(\.managedObjectContext) private var viewContext
     
     var body: some View {
         
@@ -37,16 +33,14 @@ struct HomeView: View {
                                     VStack {
                                         HStack {
                                             Text(poke.name.capitalized).font(.title).foregroundColor(.white)
-                                            if viewModel.pokemonIsFavorite(pokemon: poke) {
-                                                Image(systemName: "star.fill").foregroundColor(.yellow)
-                                            }
+                                            StarView(name: poke.name.lowercased(), viewContext: viewContext)
                                         }
                                         HStack {
                                             ZStack {
                                                 RoundedRectangle(cornerRadius: 15)
                                                     .frame(width: 60, height: 50)
                                                     .foregroundColor(poke.typeColor.opacity(0.1))
-                                                
+
                                                 Text(poke.type.capitalized).italic().foregroundColor(.white)
                                             }
                                             KFImage(URL(string: poke.imageUrl))
@@ -55,7 +49,7 @@ struct HomeView: View {
                                                 .frame(width: 100, height: 100)
                                         }
                                     }
-                                    
+
                                 }.padding([.leading, .trailing], 5)
                             }
                         }
@@ -67,10 +61,6 @@ struct HomeView: View {
         }
         .onAppear {
             viewModel.getPokemon()
-            print("hola")
-        }
-        .onDisappear {
-            print("chau")
         }
     }
 }

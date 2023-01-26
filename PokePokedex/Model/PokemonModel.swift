@@ -23,7 +23,6 @@ struct Pokemon: Identifiable, Decodable, Hashable {
     let attack: Int
     let defense: Int
     let type: String
-    //var evolutionChain: [EvolutionChain]?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -35,9 +34,8 @@ struct Pokemon: Identifiable, Decodable, Hashable {
         case attack
         case defense
         case type
-        //case evolutionChain
     }
-    
+
 }
 struct EvolutionChain: Decodable {
     let id: String?
